@@ -40,8 +40,8 @@ impl Connection for MysqlConnection {
     fn establish(database_url: &str) -> ConnectionResult<Self> {
         use result::ConnectionError::CouldntSetupConfiguration;
 
-        let raw_connection = RawConnection::new();
         let connection_options = try!(ConnectionOptions::parse(database_url));
+        let raw_connection = RawConnection::new(connection_options.timeout().unwrap_or(10u32));
         try!(raw_connection.connect(&connection_options));
         let conn = MysqlConnection {
             raw_connection: raw_connection,
@@ -96,6 +96,10 @@ impl Connection for MysqlConnection {
     #[doc(hidden)]
     fn transaction_manager(&self) -> &Self::TransactionManager {
         &self.transaction_manager
+    }
+
+    fn is_valid(&self) -> QueryResult<()> {
+        self.raw_connection.ping()
     }
 }
 

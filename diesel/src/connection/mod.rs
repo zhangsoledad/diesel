@@ -148,4 +148,8 @@ pub trait Connection: SimpleConnection + Sized + Send {
 
     #[doc(hidden)] fn silence_notices<F: FnOnce() -> T, T>(&self, f: F) -> T;
     #[doc(hidden)] fn transaction_manager(&self) -> &Self::TransactionManager;
+
+    fn is_valid(&self) -> QueryResult<()> {
+        self.execute("SELECT 1").map(|_| ())
+    }
 }
